@@ -1,0 +1,5 @@
+{
+  "name": "Aura - Autonomous Utility Response Agent",
+  "description": "A modern web interface for Aura, a platform that automatically reduces energy consumption during grid stress and instantly rewards users with USDC. The site features a futuristic, dark-mode design with neon accents, showcasing real-time data, user rewards, and the core benefits of the platform.",
+  "requestFramePermissions": []
+}
