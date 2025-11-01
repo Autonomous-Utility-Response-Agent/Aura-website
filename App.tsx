@@ -182,8 +182,9 @@ const App: React.FC = () => {
     // Here you would typically show a success notification to the user.
   };
 
-  // API Configuration
-  const API_URL = process.env.VITE_API_URL || 'http://localhost:3001';
+  // API Configuration - временно используем моки для Vercel
+  const USE_MOCK_API = true; // Установите false когда создадите API функции
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
   // API Helper Functions
   const apiCall = async (endpoint: string, options?: RequestInit) => {
@@ -226,6 +227,18 @@ const App: React.FC = () => {
 
   // Backend functions
   const simulateGridStress = async () => {
+    if (USE_MOCK_API) {
+      // Mock implementation
+      addLog('Simulating Grid Stress Event...');
+      setIsSubmitting(true);
+      setDashboardData(prev => ({ ...prev, gridStatus: 'Stressed', rewardRate: 0.78 }));
+      setIsEventActive(true);
+      addLog('Grid status set to STRESSED. Reward rate increased.');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsSubmitting(false);
+      return;
+    }
+    
     try {
       addLog('Triggering Grid Stress Event via API...');
       setIsSubmitting(true);
@@ -250,6 +263,31 @@ const App: React.FC = () => {
   };
 
   const reportSavings = async (address: string, savings: number) => {
+    if (USE_MOCK_API) {
+      // Mock implementation
+      addLog(`Reporting savings of ${savings}W for device ${address}...`);
+      setIsSubmitting(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const reward = (savings / 1000) * 0.78;
+      const newTransaction: Transaction = {
+        id: Date.now(),
+        type: 'Grid Balancing Reward',
+        amount: `+ ${reward.toFixed(2)} USDC`,
+        time: 'Just now',
+        status: 'Verifying...',
+      };
+      setTransactions(prev => [newTransaction, ...prev]);
+      setBalance(prev => prev + reward);
+      addLog(`Savings reported. User rewarded ${reward.toFixed(2)} USDC.`);
+      setIsSubmitting(false);
+      setDashboardData(prev => ({ ...prev, gridStatus: 'Stable', rewardRate: 0.22 }));
+      setIsEventActive(false);
+      setTimeout(() => {
+        setTransactions(prev => prev.map(tx => tx.id === newTransaction.id ? {...tx, status: 'Confirmed'} : tx));
+      }, 3000);
+      return;
+    }
+    
     try {
       addLog(`Reporting savings of ${savings}W for device ${address}...`);
       setIsSubmitting(true);
